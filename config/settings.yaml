@@ -1,0 +1,19 @@
+llm:
+  provider: fireworks
+  fireworks:
+    api_key_env: 
+    base_model: accounts/fireworks/models/qwen3-32b
+    lora_model: null
+  openai:
+    api_key_env: 
+    model: gpt-4.1-mini
+
+agent:
+  type: react
+  max_iterations: 6
+
+memory:
+  backend: chroma
+  persist_path: data/chroma
+
+debug: true
