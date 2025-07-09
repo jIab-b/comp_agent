@@ -7,3 +7,6 @@ pyyaml
 hydra-core
 omegaconf
 pydantic
+duckduckgo-search
+chromadb
+langchain-chroma

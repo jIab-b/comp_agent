@@ -1,1 +1,5 @@
 .env.local
+demo_agent/*
+outputs/*
+data/*
+__pycache__/
