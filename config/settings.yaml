@@ -10,9 +10,14 @@ llm:
 
 agent:
   type: react
-  max_iterations: 6
+  max_iterations: 15
   tools:
     - web_search
+    - shell
+    - file_read
+    - file_write
+    - file_search
+    - list_directory
 
 memory:
   backend: chroma

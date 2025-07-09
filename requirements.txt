@@ -10,3 +10,4 @@ pydantic
 duckduckgo-search
 chromadb
 langchain-chroma
+langchain-experimental
