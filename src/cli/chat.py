@@ -1,7 +1,7 @@
-import hydra
+import argparse
 import json
 from pathlib import Path
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import OmegaConf
 from src.agent.react_agent import react_agent
 from dotenv import load_dotenv, find_dotenv
 import os
@@ -25,36 +25,35 @@ def load_lora_config(lora_name: str) -> str:
             
     raise ValueError(f"LoRA '{lora_name}' not found in the registry.")
 
-@hydra.main(config_path="../../config", config_name="settings", version_base=None)
-def main(cfg: DictConfig) -> None:
+def main():
     """
     Runs a single chat prompt with the agent and exits.
     """
-    # Set langchain debug mode
-    langchain.debug = cfg.get('lang_debug', False)
-    
-    # Check for a prompt
-    prompt = cfg.get("prompt")
-    if not prompt:
-        print("Error: Please provide a prompt using the --prompt argument.")
-        return
+    parser = argparse.ArgumentParser(description="Run a single chat prompt.")
+    parser.add_argument("--prompt", type=str, required=True, help="The prompt to send to the agent.")
+    parser.add_argument("--lora", type=str, help="The name of the LoRA model to use.")
+    parser.add_argument("--lang_debug", action="store_true", help="Enable langchain debug mode.")
+    args = parser.parse_args()
 
+    # Load base config
+    cfg = OmegaConf.load(Path(__file__).parent.parent.parent / "config/settings.yaml")
+
+    # Set langchain debug mode
+    langchain.debug = args.lang_debug
+    
     # Check for LoRA override
-    lora_name = cfg.get("lora")
-    if lora_name:
+    if args.lora:
         try:
-            model_id = load_lora_config(lora_name)
-            print(f"--- Using LoRA model: {lora_name} ({model_id}) ---")
-            OmegaConf.set_struct(cfg, False)
+            model_id = load_lora_config(args.lora)
+            print(f"--- Using LoRA model: {args.lora} ({model_id}) ---")
             cfg.llm.fireworks.model = model_id
-            OmegaConf.set_struct(cfg, True)
         except (FileNotFoundError, ValueError) as e:
             print(f"Error: {e}")
             return
 
     # Initialize the agent and run the prompt
     agent = react_agent(cfg)
-    result = agent.run(prompt)
+    result = agent.run(args.prompt)
     print(result)
 
 if __name__ == "__main__":
