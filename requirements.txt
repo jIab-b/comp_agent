@@ -11,3 +11,4 @@ duckduckgo-search
 chromadb
 langchain-chroma
 langchain-experimental
+pdfplumber

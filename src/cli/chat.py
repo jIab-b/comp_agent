@@ -6,6 +6,8 @@ from src.agent.react_agent import react_agent
 from dotenv import load_dotenv, find_dotenv
 import os
 import langchain
+
+# Load environment variables
 load_dotenv(find_dotenv('.env.local'))
 
 def load_lora_config(lora_name: str) -> str:
@@ -25,9 +27,18 @@ def load_lora_config(lora_name: str) -> str:
 
 @hydra.main(config_path="../../config", config_name="settings", version_base=None)
 def main(cfg: DictConfig) -> None:
-    # Set langchain debug mode based on the command-line argument
+    """
+    Runs a single chat prompt with the agent and exits.
+    """
+    # Set langchain debug mode
     langchain.debug = cfg.get('lang_debug', False)
     
+    # Check for a prompt
+    prompt = cfg.get("prompt")
+    if not prompt:
+        print("Error: Please provide a prompt using the --prompt argument.")
+        return
+
     # Check for LoRA override
     lora_name = cfg.get("lora")
     if lora_name:
@@ -41,25 +52,10 @@ def main(cfg: DictConfig) -> None:
             print(f"Error: {e}")
             return
 
-    print("--- Initializing Agent ---")
+    # Initialize the agent and run the prompt
     agent = react_agent(cfg)
-    print("--- Agent Initialized. Type 'exit' or 'quit' to end the session. ---")
-
-    while True:
-        try:
-            task = input("\nYou: ")
-            if task.lower() in ["exit", "quit"]:
-                print("\n--- Session Ended ---")
-                break
-            
-            result = agent.run(task)
-            print(f"\nAssistant: {result}")
-
-        except KeyboardInterrupt:
-            print("\n--- Session Ended ---")
-            break
-        except Exception as e:
-            print(f"\nAn error occurred: {e}")
+    result = agent.run(prompt)
+    print(result)
 
 if __name__ == "__main__":
     main()

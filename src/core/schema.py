@@ -8,3 +8,7 @@ class agent_task(BaseModel):
 class agent_result(BaseModel):
     output: str
     iterations: int
+
+class Example(BaseModel):
+    messages: List[dict]
+    meta: dict = Field(default_factory=dict)
