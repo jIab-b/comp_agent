@@ -23,11 +23,6 @@ def validate_roles(example: Example):
         if roles[i] not in ["user", "assistant"]:
             raise ValidationError(f"Invalid role in conversation: {roles[i]}")
 
-def validate_content_length(example: Example):
-    for message in example.messages:
-        if len(message.get("content", "")) > MAX_CONTEXT_LENGTH:
-            raise ValidationError("Message content exceeds max context length.")
-
 def validate_examples(examples: List[Example]):
     if len(examples) < MIN_EXAMPLES:
         raise ValidationError(f"Requires at least {MIN_EXAMPLES} examples, found {len(examples)}.")
@@ -35,6 +30,5 @@ def validate_examples(examples: List[Example]):
     for i, example in enumerate(examples):
         try:
             validate_roles(example)
-            validate_content_length(example)
         except ValidationError as e:
             raise ValidationError(f"Error in example {i}: {e}") from e
