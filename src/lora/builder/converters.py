@@ -4,7 +4,7 @@ import pdfplumber
 from pathlib import Path
 from typing import Dict, List, Protocol
 
-from src.core.schema import Example
+from src.core.schema import Example, Message
 from .validators import MAX_CONTEXT_LENGTH
 
 class RawFileConverter(Protocol):
@@ -21,14 +21,14 @@ def chunk_text(text: str, source_name: str) -> List[Example]:
     for p in paragraphs:
         if len(current_chunk) + len(p) + 2 > MAX_CONTEXT_LENGTH:
             if current_chunk:
-                messages: List[dict] = [{"role": "user", "content": current_chunk.strip()}]
+                messages: List[Message] = [{"role": "user", "content": current_chunk.strip()}]
                 chunks.append(Example(messages=messages, meta={"source": source_name}))
             current_chunk = p
         else:
             current_chunk += "\n\n" + p
 
     if current_chunk.strip():
-        messages: List[dict] = [{"role": "user", "content": current_chunk.strip()}]
+        messages: List[Message] = [{"role": "user", "content": current_chunk.strip()}]
         chunks.append(Example(messages=messages, meta={"source": source_name}))
 
     return chunks
